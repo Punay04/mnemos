@@ -89,7 +89,7 @@ const FEATURES = [
   },
   {
     title: "Local memory graph",
-    description: "HydraDB runs on your machine and connects moments into a searchable graph you own completely.",
+    description: "FalkorDB runs on your machine and connects moments into a searchable graph you own completely.",
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <circle cx="12" cy="12" r="3" /><circle cx="4" cy="6" r="2" /><circle cx="20" cy="6" r="2" /><circle cx="4" cy="18" r="2" /><circle cx="20" cy="18" r="2" />
@@ -115,7 +115,7 @@ const STEPS = [
   },
   {
     title: "Remember",
-    description: "HydraDB connects moments into durable context that persists across sessions and apps.",
+    description: "FalkorDB connects moments into durable context that persists across sessions and apps.",
   },
   {
     title: "Act",
@@ -126,7 +126,7 @@ const STEPS = [
 const PRIVACY_POINTS = [
   {
     title: "Runs entirely on your device",
-    description: "Chronicle and HydraDB are one managed local experience. Your data never leaves your machine.",
+    description: "Chronicle and FalkorDB are one managed local experience. Your data never leaves your machine.",
   },
   {
     title: "No content in analytics",
@@ -164,15 +164,14 @@ function App() {
         <section className="hero shell">
           <div className="hero-badge">
             <span aria-hidden="true" />
-            Powered by HydraDB
+            Powered by FalkorDB
           </div>
           <h1>Your context, connected</h1>
           <p className="hero-copy">
             Chronicle captures the work happening on your screen and in your meetings,
-            then turns it into context you can search, chat with, and act on — backed by
-            the same memory infrastructure as{" "}
-            <a href="https://hydradb.ai/" className="hero-powered" target="_blank" rel="noreferrer">
-              HydraDB
+            then turns it into context you can search, chat with, and act on — backed by{" "}
+            <a href="https://www.wemakedevs.org/hackathons/falkordb" className="hero-powered" target="_blank" rel="noreferrer">
+              FalkorDB
             </a>
             .
           </p>
@@ -180,7 +179,7 @@ function App() {
             <DownloadLink platform={platform} variant="primary" size="lg" />
             <DownloadLink platform={alternate} variant="outline" size="lg" />
           </div>
-          <p className="fine-print">macOS universal · Linux x64 · HydraDB installs automatically</p>
+          <p className="fine-print">macOS universal · Linux x64 · FalkorDB installs automatically</p>
         </section>
 
         <section className="preview-section shell" aria-label="Chronicle product preview">
@@ -318,8 +317,8 @@ function App() {
           <span>© {new Date().getFullYear()} Chronicle</span>
           <span>
             Memory by{" "}
-            <a href="https://hydradb.ai/" target="_blank" rel="noreferrer">
-              HydraDB
+            <a href="https://github.com/FalkorDB/FalkorDB" target="_blank" rel="noreferrer">
+              FalkorDB
             </a>
           </span>
         </div>

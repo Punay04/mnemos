@@ -62,20 +62,20 @@ export function buildSystemInstruction(
     options.voice && hasHistory
       ? [
           "",
-          "HydraDB memory context (use this when answering):",
+          "FalkorDB memory context (use this when answering):",
           ...contextSnippets.map((snippet, i) => `${i + 1}. ${snippet}`),
         ].join("\n")
       : "";
 
   return [
     "You are Chronicle, a helpful AI assistant inside a desktop app that records the user's screen and audio locally.",
-    "Your long-term memory is a local HydraDB property graph of episodes, current facts, and superseded facts.",
+    "Your long-term memory is a local FalkorDB property graph of episodes, current facts, and superseded facts.",
     "Answer clearly and concisely. Use lowercase, friendly tone unless the user prefers otherwise.",
     options.voice
       ? "You are in live voice mode. Keep spoken replies short and natural — a few sentences unless the user asks for detail. Do not read markdown or bullet markers aloud."
       : "",
     "CRITICAL RULES:",
-    "- HydraDB history is provided in this conversation (not live video). You already have it.",
+    "- FalkorDB history is provided in this conversation (not live video). You already have it.",
     "- Prefer [current] facts over [superseded] facts. Superseded facts were true earlier and must not be treated as still true.",
     "- If a snippet is tagged [abstain], or nothing in the graph answers the question, say you do not know. Do not invent personal history.",
     "- NEVER say you can only answer if recording is enabled. NEVER offer to turn on recording when frames exist in the database or history snippets are provided.",
@@ -116,7 +116,7 @@ export function toGeminiContents(
       role: "user",
       parts: [
         {
-          text: `Here is my recent captured screen and audio activity from local HydraDB memory:\n\n${historyBlock}\n\nRemember this for my questions.`,
+          text: `Here is my recent captured screen and audio activity from local FalkorDB memory:\n\n${historyBlock}\n\nRemember this for my questions.`,
         },
       ],
     });

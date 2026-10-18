@@ -550,7 +550,7 @@ app.post("/chat", async (c) => {
 /**
  * Mint a Gemini Live ephemeral token (Snappy-style).
  * Client connects directly to BidiGenerateContentConstrained with the token.
- * Same HydraDB graph context + system prompt architecture as POST /chat.
+ * Same FalkorDB graph context + system prompt architecture as POST /chat.
  */
 app.post("/chat/live/session", async (c) => {
   try {
@@ -661,7 +661,7 @@ app.post("/memory", async (c) => {
     });
 
     if (!id) {
-      return c.json({ error: "hydradb local server unavailable" }, 503);
+      return c.json({ error: "falkordb local server unavailable" }, 503);
     }
 
     const node = await getNode(id);
@@ -693,7 +693,7 @@ app.post("/memory/sessions", async (c) => {
     });
 
     if (!id) {
-      return c.json({ error: "hydradb graph node unavailable" }, 503);
+      return c.json({ error: "falkordb graph unavailable" }, 503);
     }
 
     return c.json({ id, turns: body.turns.length });

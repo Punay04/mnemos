@@ -62,7 +62,7 @@ function base64ToInt16(base64: string): Int16Array {
 
 /**
  * Gemini Live voice — same methodology as Snappy:
- * 1) Backend mints ephemeral token + system instruction (with HydraDB context)
+ * 1) Backend mints ephemeral token + system instruction (with FalkorDB context)
  * 2) Renderer opens BidiGenerateContentConstrained directly
  * 3) Model: models/gemini-3.1-flash-live-preview
  *

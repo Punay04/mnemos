@@ -208,7 +208,7 @@ function GeneralSection() {
           variant="outline"
           size="sm"
           onClick={() =>
-            void electron?.openExternal("https://github.com/hydra-db/hydradb")
+            void electron?.openExternal("https://github.com/FalkorDB/FalkorDB")
           }
         >
           Check releases
@@ -305,7 +305,7 @@ function AiSection() {
           label={runtime.phase === "ready" ? "Ready" : runtime.phase}
         />
       </SettingRow>
-      <SettingRow label="Memory graph" description="Local HydraDB graph node">
+      <SettingRow label="Memory graph" description="Local FalkorDB graph">
         <StatusBadge ok={runtime.memoryReady} label={runtime.memoryReady ? "Running" : "Stopped"} />
       </SettingRow>
       <SettingRow label="Capture backend" description="Screen and audio engine">

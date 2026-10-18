@@ -9,8 +9,8 @@ import {
 
 const phaseLabel: Record<RuntimeStatus["phase"], string> = {
   checking: "checking",
-  installing: "installing hydradb",
-  "starting-memory": "starting hydradb",
+  installing: "installing falkordb",
+  "starting-memory": "starting falkordb",
   "starting-backend": "starting capture engine",
   ready: "ready",
   error: "setup needs attention",

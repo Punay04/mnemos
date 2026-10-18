@@ -1,10 +1,12 @@
 # Chronicle
 
-Chronicle is a local-first AI desktop workspace. It captures screen activity and meetings on your machine, stores them in SQLite, and writes a **property graph of episodes and facts into a local HydraDB graph-node**. Chat, search, and the Brain view retrieve over that graph with OpenCypher — including current vs superseded facts and explicit abstention when nothing matches.
+Chronicle is a local-first AI desktop workspace. It captures screen activity and meetings on your machine, stores them in SQLite, and writes a **property graph of episodes and facts into a local [FalkorDB](https://github.com/FalkorDB/FalkorDB)**. Chat, search, and the Brain view retrieve over that graph with OpenCypher — including current vs superseded facts and explicit abstention when nothing matches.
+
+Built for the [FalkorDB hackathon](https://www.wemakedevs.org/hackathons/falkordb).
 
 ## Quick start
 
-Need **Node.js 24**, **npm 11**, and a **Gemini API key**.
+Need **Node.js 24**, **npm 11**, **Docker**, and a **Gemini API key**.
 
 ```bash
 git clone https://github.com/Punay04/Chronicle.git
@@ -14,67 +16,24 @@ cp .env.example .env
 npm install
 ```
 
-Then start the app the fastest way for your OS. `npm run dev` launches HydraDB, the capture API on `http://127.0.0.1:3030`, and Vite + Electron (`http://localhost:1420`).
-
-### Windows
-
-Fastest native path — compile `graph-node` once inside WSL, then run:
+Then start Docker and run the app. `npm run dev` launches FalkorDB, the capture API on `http://127.0.0.1:3030`, and Vite + Electron (`http://localhost:1420`).
 
 ```bash
-wsl --install -d Ubuntu    # once; reboot if Windows asks
-npm run memory:bootstrap   # once (several minutes)
 npm run dev
 ```
 
-Skip the compile if Docker Desktop is already running:
+The first start pulls `falkordb/falkordb`. FalkorDB listens on `redis://127.0.0.1:6379`. Its browser is at `http://127.0.0.1:3000`.
+
+To pull the image ahead of time:
 
 ```bash
-# Git Bash
-HYDRADB_USE_DOCKER=1 npm run dev
-
-# PowerShell
-$env:HYDRADB_USE_DOCKER="1"; npm run dev
+npm run memory:bootstrap
+npm run memory:start
 ```
 
-### Linux
+## Why FalkorDB
 
-On Ubuntu/Debian, compile once then run:
-
-```bash
-npm run memory:bootstrap   # once (several minutes; uses apt)
-npm run dev
-```
-
-Skip the compile if Docker is already running:
-
-```bash
-HYDRADB_USE_DOCKER=1 npm run dev
-```
-
-### macOS
-
-Docker is the fastest path (`npm run memory:bootstrap` is not wired up on macOS):
-
-```bash
-# start Docker Desktop first
-HYDRADB_USE_DOCKER=1 npm run dev
-```
-
-To run without Docker, compile HydraDB yourself and put the binary on the lookup path:
-
-```bash
-brew install just cmake pkg-config llvm suite-sparse
-brew install cleishm/neo4j/libcypher-parser
-git clone https://github.com/hydra-db/hydradb ~/src/hydradb
-cd ~/src/hydradb && cargo build --locked --features server-runtime --bin graph-node --release
-mkdir -p ~/.chronicle/hydradb/bin
-cp ~/src/hydradb/target/release/graph-node ~/.chronicle/hydradb/bin/graph-node
-cd /path/to/Chronicle && npm run dev
-```
-
-## Why HydraDB
-
-Vector search cannot tell you whether a fact is still true, what it replaced, or that the answer is not in memory. Chronicle uses the [HydraDB](https://github.com/hydra-db/hydradb) open-source graph database as the memory substrate:
+Vector search cannot tell you whether a fact is still true, what it replaced, or that the answer is not in memory. Chronicle uses [FalkorDB](https://github.com/FalkorDB/FalkorDB) — the graph database from the [WeMakeDevs FalkorDB hackathon](https://www.wemakedevs.org/hackathons/falkordb) — as the memory substrate:
 
 | Graph object | Role |
 | --- | --- |
@@ -87,14 +46,14 @@ Vector search cannot tell you whether a fact is still true, what it replaced, or
 
 Chat retrieval runs Cypher against **current** facts first, then superseded facts (labeled so the model must not treat them as live), then related episodes. If the graph has no match, Chronicle injects an `[abstain]` instruction so the model says it does not know instead of inventing history.
 
-HydraDB is required for memory. Without the local graph-node, capture still works in SQLite, but the Brain graph, profile, and graph-aware chat context are empty.
+FalkorDB is required for memory. Without the local graph, capture still works in SQLite, but the Brain graph, profile, and graph-aware chat context are empty.
 
 ## What you can do
 
 - Capture screen frames locally (deduplicated JPEG/MP4, OCR)
 - Record meeting audio, transcribe, summarize, and extract action items
 - Search history with SQLite FTS5 (`Ctrl/Cmd+K`)
-- Chat (typed or live voice) with HydraDB-retrieved context plus Gemini
+- Chat (typed or live voice) with FalkorDB-retrieved context plus Gemini
 - Inspect the memory graph in **Brain**
 - Run built-in workflows (daily summary, meeting recap, focus tracker, action items)
 - Optionally connect Gmail, Calendar, Slack, and Notion through Composio
@@ -104,21 +63,20 @@ HydraDB is required for memory. Without the local graph-node, capture still work
 | Data | Where |
 | --- | --- |
 | Screenshots, video, audio, OCR, SQLite | `~/.chronicle/` |
-| HydraDB object store + cache | `~/.chronicle/hydradb/` |
+| FalkorDB data | `~/.chronicle/falkordb/` |
 | Capture API | `http://127.0.0.1:3030` |
-| HydraDB HTTP / Bolt / admin | `8443` / `7687` / `9090` |
+| FalkorDB Redis / browser | `6379` / `3000` |
 | Chat, STT, summaries | Retrieved graph snippets are sent to Gemini when an API key is set |
 
-## HydraDB only
+## FalkorDB only
 
 ```bash
-npm run memory:bootstrap   # once (Windows / Linux)
+npm run memory:bootstrap   # docker pull, once
 npm run memory:start
+npm run memory:status
 ```
 
-Lookup order: `HYDRADB_BIN` or `~/.chronicle/hydradb/bin/graph-node`, then a WSL binary (`HYDRADB_WSL_BIN` or `~/.chronicle/hydradb/wsl-bin`). Docker is opt-in: `HYDRADB_USE_DOCKER=1 npm run memory:start`.
-
-Health check: `GET http://127.0.0.1:9090/readyz`. Data lives under `~/.chronicle/hydradb/`.
+Health check is a Redis `PING` on `127.0.0.1:6379`. Data lives under `~/.chronicle/falkordb/`. The graph name is `chronicle`.
 
 ## Ingest a chat session (graph memory)
 
@@ -134,11 +92,11 @@ A later session with a different city writes a new `Fact` and a `SUPERSEDES` edg
 
 ```
 Renderer (React) --IPC--> Electron main
-                              |-- scripts/hydradb-start.mjs --> native / WSL graph-node
+                              |-- scripts/falkordb-start.mjs --> FalkorDB container
                               |-- Hono capture API :3030
                                     |-- Capture engine (screen / OCR / audio)
                                     |-- SQLite + FTS5
-                                    |-- HydraDB Cypher ingest + retrieve
+                                    |-- FalkorDB Cypher ingest + retrieve
                                     |-- Gemini chat / live / pipes
 ```
 
@@ -146,9 +104,10 @@ Renderer (React) --IPC--> Electron main
 
 | Command | What it does |
 | --- | --- |
-| `npm run dev` | HydraDB + backend + Vite/Electron |
-| `npm run memory:bootstrap` | Compile native `graph-node` (WSL on Windows, apt on Linux) |
-| `npm run memory:start` | Start the local HydraDB graph-node |
+| `npm run dev` | FalkorDB + backend + Vite/Electron |
+| `npm run memory:bootstrap` | Pull the FalkorDB Docker image |
+| `npm run memory:start` | Start the local FalkorDB container |
+| `npm run memory:status` | Redis PING against FalkorDB |
 | `npm run typecheck` | Typecheck the desktop app |
 | `npm run test:runtime` | Runtime policy tests |
 | `npm run build:win` | Windows installer |
@@ -157,4 +116,4 @@ Renderer (React) --IPC--> Electron main
 
 ## License
 
-MIT. HydraDB itself is AGPL-3.0 and is run as a separate `graph-node` process, not vendored into this repository.
+MIT. [FalkorDB](https://github.com/FalkorDB/FalkorDB) runs as a separate Docker process and is not vendored into this repository.

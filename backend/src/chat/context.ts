@@ -14,7 +14,7 @@ export interface ChatContextBundle {
 
 /**
  * Same context assembly used by POST /chat and Gemini Live voice sessions:
- * HydraDB graph → recent SQLite fallback → FTS, then budget-trimmed.
+ * FalkorDB graph → recent SQLite fallback → FTS, then budget-trimmed.
  */
 export async function buildChatContext(
   searchQuery: string
