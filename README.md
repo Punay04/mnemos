@@ -8,6 +8,8 @@ Built for the [FalkorDB hackathon](https://www.wemakedevs.org/hackathons/falkord
 
 Need **Node.js 24**, **npm 11**, **Docker**, and a **Gemini API key**.
 
+> Node 24 is a hard requirement, not a preference — Node 22 and older bundle SQLite without FTS5, and the capture API exits at startup with `no such module: fts5`. The repo ships an `.nvmrc`, so `nvm use` picks the right version.
+
 ```bash
 git clone https://github.com/Punay04/mnemos.git
 cd mnemos
@@ -86,7 +88,22 @@ curl -s http://127.0.0.1:3030/memory/sessions \
   -d "{\"sessionId\":\"demo-1\",\"turns\":[{\"role\":\"user\",\"content\":\"I live in Austin\"},{\"role\":\"assistant\",\"content\":\"Noted.\"}]}"
 ```
 
-A later session with a different city writes a new `Fact` and a `SUPERSEDES` edge. Chat questions about the current city should use the new fact; questions about the old city should treat it as replaced.
+A later session with a different city writes a new `Fact` and a `SUPERSEDES` edge:
+
+```bash
+curl -s http://127.0.0.1:3030/memory/sessions \
+  -H "Content-Type: application/json" \
+  -d "{\"sessionId\":\"demo-2\",\"turns\":[{\"role\":\"user\",\"content\":\"I moved to Lisbon\"}]}"
+```
+
+Facts are keyed by the attribute they describe, not by their wording, so "I live in Austin" and "I moved to Lisbon" collide on the same key and the older one is retired. Inspect it in the graph:
+
+```cypher
+MATCH (new:Fact)-[:SUPERSEDES]->(old:Fact)
+RETURN new.text, new.current, old.text, old.current, old.valid_to
+```
+
+Austin comes back `current = false` with a `valid_to` timestamp; Lisbon is current. Asking chat "Where do I live?" answers Lisbon, and asking about Austin reports it as replaced rather than live.
 
 ## Architecture
 
