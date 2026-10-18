@@ -2,6 +2,7 @@ import { getDb } from "../db/index.js";
 import { buildGraphFromNeighbors, rowToMemoryNode } from "./adapter.js";
 import { cypherLiteral, isFalkorReachable, runCypher } from "./client.js";
 import {
+  factKey,
   ingestAudioChunk,
   ingestChatSession,
   ingestMeetingSummary,
@@ -73,9 +74,15 @@ export async function retrieveContextForChat(
       return true;
     };
 
+    // Also match on the attribute key, not just the fact text. A question
+    // ("Where do I live?") rarely reuses the wording of the answer ("I moved
+    // to Lisbon"), so text matching alone misses the fact that supersedes.
+    const queryKey = factKey(trimmed);
+
     const currentFacts = await runCypher(`
       MATCH (f:Fact)
-      WHERE f.current = true AND (${containsClause("f", "text", trimmed)})
+      WHERE f.current = true
+        AND ((${containsClause("f", "text", trimmed)}) OR f.key = ${cypherLiteral(queryKey)})
       RETURN f.id AS id, f.text AS text, f.valid_from AS valid_from
       LIMIT 12
     `);
