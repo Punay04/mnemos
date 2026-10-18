@@ -1,9 +1,9 @@
 {
-  "name": "chronicle",
+  "name": "mnemos",
   "version": "1.0.0",
   "packageManager": "npm@11.18.0",
-  "description": "Chronicle — AI desktop app with local screen and audio capture",
-  "author": "Chronicle",
+  "description": "Mnemos — AI desktop app with local screen and audio capture",
+  "author": "Mnemos",
   "main": "dist-electron/main.js",
   "type": "module",
   "scripts": {
@@ -17,7 +17,7 @@
     "build:win": "npm run compile && electron-builder --win nsis --x64 --publish never",
     "build:site": "npm run build --prefix site",
     "test:runtime": "node --experimental-strip-types --test electron/runtime-policy.test.ts",
-    "verify:package:mac": "node scripts/verify-packaged-runtime.mjs release/mac-universal/Chronicle.app/Contents/Resources/app.asar",
+    "verify:package:mac": "node scripts/verify-packaged-runtime.mjs release/mac-universal/Mnemos.app/Contents/Resources/app.asar",
     "preview": "vite preview",
     "electron:dev": "vite",
     "typecheck": "tsc --noEmit",
@@ -87,8 +87,8 @@
     "vite-plugin-electron-renderer": "^0.14.6"
   },
   "build": {
-    "appId": "com.chronicle.desktop",
-    "productName": "Chronicle",
+    "appId": "com.mnemos.desktop",
+    "productName": "Mnemos",
     "directories": {
       "output": "release"
     },
@@ -114,13 +114,13 @@
     ],
     "mac": {
       "target": "dmg",
-      "artifactName": "Chronicle-universal.${ext}",
+      "artifactName": "Mnemos-universal.${ext}",
       "icon": "icon.png",
       "category": "public.app-category.productivity",
       "hardenedRuntime": true,
       "extendInfo": {
-        "NSMicrophoneUsageDescription": "Chronicle records microphone audio when you start meeting notes.",
-        "NSAudioCaptureUsageDescription": "Chronicle records meeting playback so every participant can be transcribed."
+        "NSMicrophoneUsageDescription": "Mnemos records microphone audio when you start meeting notes.",
+        "NSAudioCaptureUsageDescription": "Mnemos records meeting playback so every participant can be transcribed."
       },
       "entitlements": "build/entitlements.mac.plist",
       "entitlementsInherit": "build/entitlements.mac.plist",
@@ -128,14 +128,14 @@
     },
     "linux": {
       "target": "AppImage",
-      "artifactName": "Chronicle-x86_64.${ext}",
+      "artifactName": "Mnemos-x86_64.${ext}",
       "icon": "icon.png",
       "category": "Utility",
       "synopsis": "Local AI workspace for screen, audio, and context"
     },
     "win": {
       "target": "nsis",
-      "artifactName": "Chronicle-win.${ext}"
+      "artifactName": "Mnemos-win.${ext}"
     }
   },
   "allowScripts": {

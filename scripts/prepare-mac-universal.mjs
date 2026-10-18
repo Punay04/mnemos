@@ -10,7 +10,7 @@ const packages = [
   ["@img/sharp-libvips-darwin-x64", "1.0.4"],
   ["@ffmpeg-installer/darwin-x64", "4.1.0"],
 ];
-const staging = mkdtempSync(path.join(os.tmpdir(), "chronicle-native-"));
+const staging = mkdtempSync(path.join(os.tmpdir(), "mnemos-native-"));
 
 try {
   for (const [name, version] of packages) {

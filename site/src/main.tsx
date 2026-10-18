@@ -4,10 +4,10 @@ import { Analytics } from "@vercel/analytics/react";
 import { track } from "@vercel/analytics";
 import "./styles.css";
 
-const RELEASE_ROOT = "https://github.com/chronicle-app/chronicle/releases/latest/download";
+const RELEASE_ROOT = "https://github.com/Punay04/mnemos/releases/latest/download";
 const DOWNLOADS = {
-  mac: `${RELEASE_ROOT}/Chronicle-universal.dmg`,
-  linux: `${RELEASE_ROOT}/Chronicle-x86_64.AppImage`,
+  mac: `${RELEASE_ROOT}/Mnemos-universal.dmg`,
+  linux: `${RELEASE_ROOT}/Mnemos-x86_64.AppImage`,
 };
 
 type Platform = keyof typeof DOWNLOADS;
@@ -80,7 +80,7 @@ const NAV_ITEMS = [
 const FEATURES = [
   {
     title: "Screen & audio capture",
-    description: "Chronicle watches your screen and listens to meetings, turning activity into structured context automatically.",
+    description: "Mnemos watches your screen and listens to meetings, turning activity into structured context automatically.",
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <rect x="2" y="3" width="20" height="14" rx="2" /><line x1="8" y1="21" x2="16" y2="21" /><line x1="12" y1="17" x2="12" y2="21" />
@@ -126,7 +126,7 @@ const STEPS = [
 const PRIVACY_POINTS = [
   {
     title: "Runs entirely on your device",
-    description: "Chronicle and FalkorDB are one managed local experience. Your data never leaves your machine.",
+    description: "Mnemos and FalkorDB are one managed local experience. Your data never leaves your machine.",
   },
   {
     title: "No content in analytics",
@@ -146,15 +146,15 @@ function App() {
     <>
       <header className="site-header">
         <div className="shell">
-          <a href="#top" className="brand" aria-label="Chronicle home">
+          <a href="#top" className="brand" aria-label="Mnemos home">
             <img src="/logo.png" alt="" />
-            <span>Chronicle</span>
+            <span>Mnemos</span>
           </a>
           <nav className="site-nav" aria-label="Main navigation">
             <a href="#features">Features</a>
             <a href="#how">How it works</a>
             <a href="#privacy">Privacy</a>
-            <a href="https://github.com/chronicle-app/chronicle">GitHub</a>
+            <a href="https://github.com/Punay04/mnemos">GitHub</a>
             <DownloadLink platform={platform} variant="primary" />
           </nav>
         </div>
@@ -168,7 +168,7 @@ function App() {
           </div>
           <h1>Your context, connected</h1>
           <p className="hero-copy">
-            Chronicle captures the work happening on your screen and in your meetings,
+            Mnemos captures the work happening on your screen and in your meetings,
             then turns it into context you can search, chat with, and act on — backed by{" "}
             <a href="https://www.wemakedevs.org/hackathons/falkordb" className="hero-powered" target="_blank" rel="noreferrer">
               FalkorDB
@@ -182,13 +182,13 @@ function App() {
           <p className="fine-print">macOS universal · Linux x64 · FalkorDB installs automatically</p>
         </section>
 
-        <section className="preview-section shell" aria-label="Chronicle product preview">
+        <section className="preview-section shell" aria-label="Mnemos product preview">
           <div className="preview-frame">
             <div className="preview-chrome">
               <div className="preview-chrome-dots" aria-hidden="true">
                 <span /><span /><span />
               </div>
-              <span>Chronicle</span>
+              <span>Mnemos</span>
               <span>Local · Ready</span>
             </div>
             <div className="preview-body">
@@ -266,7 +266,7 @@ function App() {
             <div>
               <h2>The memory stays on your machine</h2>
               <p className="section-intro">
-                Chronicle is built for people who want AI that understands their work
+                Mnemos is built for people who want AI that understands their work
                 without sending it to the cloud.
               </p>
             </div>
@@ -293,28 +293,28 @@ function App() {
             <div className="install-card">
               <h3>macOS</h3>
               <p>
-                Open the DMG, drag Chronicle to Applications, and launch it.
+                Open the DMG, drag Mnemos to Applications, and launch it.
                 Gatekeeper-compatible signed releases are published on GitHub.
               </p>
             </div>
             <div className="install-card">
               <h3>Linux</h3>
               <p>Download the AppImage, make it executable, then open it.</p>
-              <code>chmod +x Chronicle-x86_64.AppImage</code>
+              <code>chmod +x Mnemos-x86_64.AppImage</code>
             </div>
           </div>
         </section>
 
         <section className="final-cta shell">
           <h2>Remember more. Repeat less.</h2>
-          <p>Download Chronicle and start building your local memory graph.</p>
+          <p>Download Mnemos and start building your local memory graph.</p>
           <DownloadLink platform={platform} variant="primary" size="lg" />
         </section>
       </main>
 
       <footer className="site-footer">
         <div className="shell">
-          <span>© {new Date().getFullYear()} Chronicle</span>
+          <span>© {new Date().getFullYear()} Mnemos</span>
           <span>
             Memory by{" "}
             <a href="https://github.com/FalkorDB/FalkorDB" target="_blank" rel="noreferrer">

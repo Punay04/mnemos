@@ -9,7 +9,7 @@ import os from "os";
 
 const execFileAsync = promisify(execFile);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const API_PORT = Number(process.env.CHRONICLE_PORT ?? 3030);
+const API_PORT = Number(process.env.MNEMOS_PORT ?? 3030);
 const API_URL = `http://127.0.0.1:${API_PORT}`;
 
 let backendProcess: ChildProcess | null = null;
@@ -63,21 +63,21 @@ function getBackendEntry(): { command: string; args: string[]; cwd: string } {
     command: "node",
     args: [path.join(backendDir, "dist", "index.js")],
     // An ASAR path is readable by Node but cannot be used as an OS working
-    // directory. Runtime data is explicitly routed to ~/.chronicle below.
+    // directory. Runtime data is explicitly routed to ~/.mnemos below.
     cwd: app.getPath("userData"),
   };
 }
 
 function getEnvForBackend(): NodeJS.ProcessEnv {
-  const dataDir = path.join(os.homedir(), ".chronicle");
+  const dataDir = path.join(os.homedir(), ".mnemos");
   const envPath = path.join(__dirname, "..", ".env");
   const dotenv = loadEnvFile(envPath);
 
   return {
     ...process.env,
     ...dotenv,
-    CHRONICLE_DATA_DIR: dataDir,
-    CHRONICLE_PORT: String(API_PORT),
+    MNEMOS_DATA_DIR: dataDir,
+    MNEMOS_PORT: String(API_PORT),
   };
 }
 
@@ -177,7 +177,7 @@ export async function startBackend(
     cwd,
     env: { ...getEnvForBackend(), ...envOverrides },
     stdio: "pipe",
-    serviceName: "Chronicle Capture Engine",
+    serviceName: "Mnemos Capture Engine",
   });
 
   const recordOutput = (chunk: Buffer, isError: boolean) => {

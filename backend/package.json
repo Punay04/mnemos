@@ -1,9 +1,9 @@
 {
-  "name": "chronicle-backend",
+  "name": "mnemos-backend",
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Chronicle capture engine — local screen and audio API",
+  "description": "Mnemos capture engine — local screen and audio API",
   "main": "dist/index.js",
   "scripts": {
     "dev": "tsx watch src/index.ts",

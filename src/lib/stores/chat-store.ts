@@ -121,7 +121,7 @@ export const useChatStore = create<ChatState>()(
       },
     }),
     {
-      name: "chronicle-chat",
+      name: "mnemos-chat",
       partialize: (state) => ({
         sessions: state.sessions,
         currentId: state.currentId,

@@ -11,9 +11,9 @@ const PORT = Number(process.env.FALKORDB_PORT ?? 6379);
 const BROWSER_PORT = Number(process.env.FALKORDB_BROWSER_PORT ?? 3000);
 const DATA_ROOT =
   process.env.FALKORDB_DATA_DIR ??
-  path.join(os.homedir(), ".chronicle", "falkordb");
+  path.join(os.homedir(), ".mnemos", "falkordb");
 const IMAGE = process.env.FALKORDB_IMAGE ?? "falkordb/falkordb:latest";
-const CONTAINER = process.env.FALKORDB_CONTAINER ?? "chronicle-falkordb";
+const CONTAINER = process.env.FALKORDB_CONTAINER ?? "mnemos-falkordb";
 const PASSWORD = process.env.FALKORDB_PASSWORD ?? "";
 
 function run(command, args) {

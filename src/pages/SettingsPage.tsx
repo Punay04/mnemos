@@ -192,7 +192,7 @@ function GeneralSection() {
 
   return (
     <>
-      <SettingRow label="Launch at login" description="Open Chronicle when you sign in">
+      <SettingRow label="Launch at login" description="Open Mnemos when you sign in">
         <Toggle checked={settings.launchAtStartup} onChange={toggleLaunchAtStartup} />
       </SettingRow>
       <SettingRow label="Version" description="Installed app version">
@@ -371,7 +371,7 @@ function ShortcutsSection() {
         </div>
       ))}
       <p className="text-xs text-muted-foreground pt-3">
-        Shortcuts work while Chronicle is focused.
+        Shortcuts work while Mnemos is focused.
       </p>
     </div>
   );

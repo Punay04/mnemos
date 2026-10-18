@@ -31,7 +31,7 @@ export const useSettingsStore = create<SettingsState>()(
           settings: { ...state.settings, [key]: value },
         })),
     }),
-    { name: "chronicle-settings" }
+    { name: "mnemos-settings" }
   )
 );
 

@@ -31,7 +31,7 @@ test("runtime progress is clamped and readiness is preserved", () => {
 });
 
 test("managed API key supports current and legacy filenames", () => {
-  const directory = mkdtempSync(path.join(os.tmpdir(), "chronicle-runtime-"));
+  const directory = mkdtempSync(path.join(os.tmpdir(), "mnemos-runtime-"));
   try {
     assert.equal(readManagedApiKey(directory), "local");
     writeFileSync(path.join(directory, "api_key"), "legacy-key\n");

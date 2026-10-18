@@ -8,7 +8,7 @@ import type { MemoryNode } from "@/lib/api/client";
 import { linkEndpointId } from "@/lib/memory-graph";
 import { getFocusSet, isLinkFocused } from "@/lib/memory-graph-layout";
 
-/** Olive graph — matches Chronicle primary ink / lime */
+/** Olive graph — matches Mnemos primary ink / lime */
 const GRAPH = {
   background: "transparent",
   edge: "hsla(67, 32%, 32%, 0.45)",

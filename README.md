@@ -1,6 +1,6 @@
-# Chronicle
+# Mnemos
 
-Chronicle is a local-first AI desktop workspace. It captures screen activity and meetings on your machine, stores them in SQLite, and writes a **property graph of episodes and facts into a local [FalkorDB](https://github.com/FalkorDB/FalkorDB)**. Chat, search, and the Brain view retrieve over that graph with OpenCypher — including current vs superseded facts and explicit abstention when nothing matches.
+Mnemos is a local-first AI desktop workspace. It captures screen activity and meetings on your machine, stores them in SQLite, and writes a **property graph of episodes and facts into a local [FalkorDB](https://github.com/FalkorDB/FalkorDB)**. Chat, search, and the Brain view retrieve over that graph with OpenCypher — including current vs superseded facts and explicit abstention when nothing matches.
 
 Built for the [FalkorDB hackathon](https://www.wemakedevs.org/hackathons/falkordb).
 
@@ -9,8 +9,8 @@ Built for the [FalkorDB hackathon](https://www.wemakedevs.org/hackathons/falkord
 Need **Node.js 24**, **npm 11**, **Docker**, and a **Gemini API key**.
 
 ```bash
-git clone https://github.com/Punay04/Chronicle.git
-cd Chronicle
+git clone https://github.com/Punay04/mnemos.git
+cd mnemos
 cp .env.example .env
 # set GEMINI_API_KEY in .env
 npm install
@@ -33,7 +33,7 @@ npm run memory:start
 
 ## Why FalkorDB
 
-Vector search cannot tell you whether a fact is still true, what it replaced, or that the answer is not in memory. Chronicle uses [FalkorDB](https://github.com/FalkorDB/FalkorDB) — the graph database from the [WeMakeDevs FalkorDB hackathon](https://www.wemakedevs.org/hackathons/falkordb) — as the memory substrate:
+Vector search cannot tell you whether a fact is still true, what it replaced, or that the answer is not in memory. Mnemos uses [FalkorDB](https://github.com/FalkorDB/FalkorDB) — the graph database from the [WeMakeDevs FalkorDB hackathon](https://www.wemakedevs.org/hackathons/falkordb) — as the memory substrate:
 
 | Graph object | Role |
 | --- | --- |
@@ -44,7 +44,7 @@ Vector search cannot tell you whether a fact is still true, what it replaced, or
 | `SUPERSEDES` | Later fact replacing an earlier one |
 | `RECORDED_AS` / `IN_SESSION` | Provenance from episode → fact → session |
 
-Chat retrieval runs Cypher against **current** facts first, then superseded facts (labeled so the model must not treat them as live), then related episodes. If the graph has no match, Chronicle injects an `[abstain]` instruction so the model says it does not know instead of inventing history.
+Chat retrieval runs Cypher against **current** facts first, then superseded facts (labeled so the model must not treat them as live), then related episodes. If the graph has no match, Mnemos injects an `[abstain]` instruction so the model says it does not know instead of inventing history.
 
 FalkorDB is required for memory. Without the local graph, capture still works in SQLite, but the Brain graph, profile, and graph-aware chat context are empty.
 
@@ -62,8 +62,8 @@ FalkorDB is required for memory. Without the local graph, capture still works in
 
 | Data | Where |
 | --- | --- |
-| Screenshots, video, audio, OCR, SQLite | `~/.chronicle/` |
-| FalkorDB data | `~/.chronicle/falkordb/` |
+| Screenshots, video, audio, OCR, SQLite | `~/.mnemos/` |
+| FalkorDB data | `~/.mnemos/falkordb/` |
 | Capture API | `http://127.0.0.1:3030` |
 | FalkorDB Redis / browser | `6379` / `3000` |
 | Chat, STT, summaries | Retrieved graph snippets are sent to Gemini when an API key is set |
@@ -76,7 +76,7 @@ npm run memory:start
 npm run memory:status
 ```
 
-Health check is a Redis `PING` on `127.0.0.1:6379`. Data lives under `~/.chronicle/falkordb/`. The graph name is `chronicle`.
+Health check is a Redis `PING` on `127.0.0.1:6379`. Data lives under `~/.mnemos/falkordb/`. The graph name is `mnemos`.
 
 ## Ingest a chat session (graph memory)
 

@@ -132,7 +132,7 @@ export class RuntimeManager {
   async openLogs() {
     const { root, log } = this.paths();
     mkdirSync(root, { recursive: true });
-    if (!existsSync(log)) appendFileSync(log, "Chronicle runtime log\n");
+    if (!existsSync(log)) appendFileSync(log, "Mnemos runtime log\n");
     await shell.showItemInFolder(log);
   }
 
@@ -235,10 +235,10 @@ export class RuntimeManager {
     const env: Record<string, string> = {
       FALKORDB_HOST: REDIS_HOST,
       FALKORDB_PORT: String(REDIS_PORT),
-      FALKORDB_GRAPH: "chronicle",
+      FALKORDB_GRAPH: "mnemos",
     };
     const stored = readManagedApiKey(
-      path.join(os.homedir(), ".chronicle", "falkordb")
+      path.join(os.homedir(), ".mnemos", "falkordb")
     );
     const password =
       process.env.FALKORDB_PASSWORD || (stored !== "local" ? stored : "");
@@ -269,7 +269,7 @@ export class RuntimeManager {
       if (!isSupportedRuntimePlatform(process.platform)) {
         throw this.runtimeError(
           "UNSUPPORTED_PLATFORM",
-          "Chronicle requires Windows, macOS, or Linux.",
+          "Mnemos requires Windows, macOS, or Linux.",
           false
         );
       }
@@ -285,15 +285,15 @@ export class RuntimeManager {
         await this.waitForMemoryHealth();
       }
 
-      this.update("starting-backend", "starting Chronicle capture engine", 78, {
+      this.update("starting-backend", "starting Mnemos capture engine", 78, {
         memoryReady: true,
       });
       try {
         await startBackend(
           {
             ...this.falkorBackendEnv(),
-            CHRONICLE_NATIVE_DIR: path.join(process.resourcesPath, "backend-native"),
-            CHRONICLE_AUTO_START: "0",
+            MNEMOS_NATIVE_DIR: path.join(process.resourcesPath, "backend-native"),
+            MNEMOS_AUTO_START: "0",
             ...providerEnv,
           },
           (message) => this.writeLog(`backend: ${message}`),
@@ -303,12 +303,12 @@ export class RuntimeManager {
           String(error).includes("already in use") ? "PORT_IN_USE" : "BACKEND_START_FAILED",
           String(error).includes("already in use")
             ? `Port ${manifest.backendPort} is already in use by another process.`
-            : "The Chronicle capture engine could not be started.",
+            : "The Mnemos capture engine could not be started.",
           true,
           error instanceof Error ? error.stack : String(error)
         );
       }
-      this.update("ready", "Chronicle is ready", 100, {
+      this.update("ready", "Mnemos is ready", 100, {
         memoryReady: true,
         backendReady: true,
         error: undefined,

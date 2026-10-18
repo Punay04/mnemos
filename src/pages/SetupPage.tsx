@@ -53,7 +53,7 @@ export function SetupPage() {
     <main className="min-h-screen bg-background text-foreground flex flex-col p-10 font-mono">
       <div className="flex items-center gap-3">
         <div className="h-7 w-7 border-2 border-foreground grid place-items-center text-xs">S</div>
-        <h1 className="text-xl lowercase">Chronicle</h1>
+        <h1 className="text-xl lowercase">Mnemos</h1>
       </div>
 
       <section className="my-auto space-y-5">
@@ -122,7 +122,7 @@ export function SetupPage() {
             {retrying ? "retrying…" : "retry"}
           </Button>
           <Button variant="ghost" className="col-span-2" onClick={() => electron?.quit()}>
-            quit Chronicle
+            quit Mnemos
           </Button>
         </div>
       ) : (

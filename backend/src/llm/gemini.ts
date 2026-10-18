@@ -68,7 +68,7 @@ export function buildSystemInstruction(
       : "";
 
   return [
-    "You are Chronicle, a helpful AI assistant inside a desktop app that records the user's screen and audio locally.",
+    "You are Mnemos, a helpful AI assistant inside a desktop app that records the user's screen and audio locally.",
     "Your long-term memory is a local FalkorDB property graph of episodes, current facts, and superseded facts.",
     "Answer clearly and concisely. Use lowercase, friendly tone unless the user prefers otherwise.",
     options.voice

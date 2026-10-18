@@ -14,7 +14,7 @@ Add-Type @"
 using System;
 using System.Runtime.InteropServices;
 using System.Text;
-public class ChronicleWin32 {
+public class MnemosWin32 {
   [DllImport("user32.dll")]
   public static extern IntPtr GetForegroundWindow();
   [DllImport("user32.dll", CharSet=CharSet.Auto)]
@@ -23,11 +23,11 @@ public class ChronicleWin32 {
   public static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint processId);
 }
 "@
-$hwnd = [ChronicleWin32]::GetForegroundWindow()
+$hwnd = [MnemosWin32]::GetForegroundWindow()
 $pid = [uint32]0
-[void][ChronicleWin32]::GetWindowThreadProcessId($hwnd, [ref]$pid)
+[void][MnemosWin32]::GetWindowThreadProcessId($hwnd, [ref]$pid)
 $title = New-Object System.Text.StringBuilder 512
-[void][ChronicleWin32]::GetWindowText($hwnd, $title, 512)
+[void][MnemosWin32]::GetWindowText($hwnd, $title, 512)
 $proc = Get-Process -Id $pid -ErrorAction SilentlyContinue
 @{ app = if ($proc) { $proc.ProcessName } else { "unknown" }; title = $title.ToString() } | ConvertTo-Json -Compress
 `.trim();

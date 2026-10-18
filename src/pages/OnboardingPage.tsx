@@ -40,7 +40,7 @@ function LoginSlide({ onNext }: { onNext: () => void }) {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-8 gap-6">
       <div className="text-center">
-        <h1 className="text-3xl font-semibold tracking-tight mb-2">Chronicle</h1>
+        <h1 className="text-3xl font-semibold tracking-tight mb-2">Mnemos</h1>
         <p className="text-sm text-muted-foreground max-w-xs">
           Your local AI workspace for screen, audio, and context
         </p>
@@ -106,16 +106,16 @@ function PermissionsSlide({ onNext }: { onNext: () => void }) {
   return (
     <OnboardingShell
       title="Permissions"
-      description="Chronicle needs these permissions to capture your screen and audio."
+      description="Mnemos needs these permissions to capture your screen and audio."
       footer={
         restartRequired ? (
           <div className="mt-auto flex flex-col gap-2">
             <p className="text-xs text-muted-foreground text-center">
-              After enabling the permission in System Settings, restart Chronicle
+              After enabling the permission in System Settings, restart Mnemos
               so macOS can apply it.
             </p>
             <Button onClick={() => void electron?.restart()}>
-              Restart Chronicle
+              Restart Mnemos
             </Button>
           </div>
         ) : (

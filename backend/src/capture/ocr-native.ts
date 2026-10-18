@@ -7,8 +7,8 @@ import { DATA_DIR } from "../config.js";
 
 const execFileAsync = promisify(execFile);
 
-const SWIFT_SOURCE = process.env.CHRONICLE_NATIVE_DIR
-  ? path.join(process.env.CHRONICLE_NATIVE_DIR, "macos-ocr.swift")
+const SWIFT_SOURCE = process.env.MNEMOS_NATIVE_DIR
+  ? path.join(process.env.MNEMOS_NATIVE_DIR, "macos-ocr.swift")
   : path.resolve(
       path.dirname(fileURLToPath(import.meta.url)),
       "../../native/macos-ocr.swift"

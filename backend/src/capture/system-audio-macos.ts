@@ -7,8 +7,8 @@ import { DATA_DIR } from "../config.js";
 
 const execFileAsync = promisify(execFile);
 
-const SWIFT_SOURCE = process.env.CHRONICLE_NATIVE_DIR
-  ? path.join(process.env.CHRONICLE_NATIVE_DIR, "macos-system-audio.swift")
+const SWIFT_SOURCE = process.env.MNEMOS_NATIVE_DIR
+  ? path.join(process.env.MNEMOS_NATIVE_DIR, "macos-system-audio.swift")
   : path.resolve(
       path.dirname(fileURLToPath(import.meta.url)),
       "../../native/macos-system-audio.swift"

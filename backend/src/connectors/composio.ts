@@ -9,7 +9,7 @@ import {
 } from "./config.js";
 
 /**
- * Thin wrapper around the Composio SDK for Chronicle's connectors.
+ * Thin wrapper around the Composio SDK for Mnemos's connectors.
  *
  * Composio is the source of truth for auth + tool execution. It hosts the OAuth
  * redirect URI, so the app only needs to open the returned auth URL and poll for
@@ -115,7 +115,7 @@ async function resolveAuthConfigId(tk: ToolkitConfig): Promise<string> {
 
   const created = await composio.authConfigs.create(tk.slug, {
     type: "use_composio_managed_auth",
-    name: `chronicle-${tk.slug}`,
+    name: `mnemos-${tk.slug}`,
   });
   authConfigCache.set(tk.slug, created.id);
   return created.id;

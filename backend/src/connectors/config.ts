@@ -10,7 +10,7 @@
 export const COMPOSIO_API_KEY = process.env.COMPOSIO_API_KEY ?? "";
 
 /** Single local user — this is a personal desktop app, one identity is enough. */
-export const COMPOSIO_USER_ID = process.env.COMPOSIO_USER_ID ?? "chronicle-default";
+export const COMPOSIO_USER_ID = process.env.COMPOSIO_USER_ID ?? "mnemos-default";
 
 export interface ToolkitConfig {
   /** Composio toolkit slug (lowercase). */

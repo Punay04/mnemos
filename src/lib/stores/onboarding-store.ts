@@ -22,7 +22,7 @@ export const useOnboardingStore = create<OnboardingState>()(
       setCompleted: (isCompleted) => set({ isCompleted }),
       reset: () => set({ currentStep: "login", isCompleted: false }),
     }),
-    { name: "chronicle-onboarding" }
+    { name: "mnemos-onboarding" }
   )
 );
 

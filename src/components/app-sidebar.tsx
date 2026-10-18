@@ -62,7 +62,7 @@ const SidebarShellContext = createContext<SidebarShellContextValue | null>(null)
 export function AppSidebarLayout({ children }: { children: React.ReactNode }) {
   const { isTranslucent } = useSidebarContext();
   const [width, setWidth] = useState(() => {
-    const stored = localStorage.getItem("chronicle-sidebar-width");
+    const stored = localStorage.getItem("mnemos-sidebar-width");
     return stored ? Number(stored) : DEFAULT_WIDTH;
   });
   const [isResizing, setIsResizing] = useState(false);
@@ -101,16 +101,16 @@ export function AppSidebarLayout({ children }: { children: React.ReactNode }) {
       setIsResizing(false);
       document.removeEventListener("pointermove", onMove);
       document.removeEventListener("pointerup", onUp);
-      const stored = localStorage.getItem("chronicle-sidebar-width");
+      const stored = localStorage.getItem("mnemos-sidebar-width");
       const finalWidth = stored ? Number(stored) : width;
-      localStorage.setItem("chronicle-sidebar-width", String(finalWidth));
+      localStorage.setItem("mnemos-sidebar-width", String(finalWidth));
     };
     document.addEventListener("pointermove", onMove);
     document.addEventListener("pointerup", onUp);
   }, [width]);
 
   useEffect(() => {
-    localStorage.setItem("chronicle-sidebar-width", String(width));
+    localStorage.setItem("mnemos-sidebar-width", String(width));
   }, [width]);
 
   return (

@@ -127,7 +127,7 @@ export function HomePage() {
               </TooltipTrigger>
               <TooltipContent>Toggle sidebar</TooltipContent>
             </Tooltip>
-            <span className="text-sm font-semibold text-foreground tracking-tight">Chronicle</span>
+            <span className="text-sm font-semibold text-foreground tracking-tight">Mnemos</span>
           </div>
 
           <div className="flex items-center gap-2">

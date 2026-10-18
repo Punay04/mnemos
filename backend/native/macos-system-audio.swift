@@ -11,7 +11,7 @@ func fail(_ message: String) -> Never {
 @available(macOS 13.0, *)
 final class SystemAudioCapture: NSObject, SCStreamOutput, SCStreamDelegate {
     private let destination: URL
-    private let audioQueue = DispatchQueue(label: "com.chronicle.system-audio")
+    private let audioQueue = DispatchQueue(label: "com.mnemos.system-audio")
     private var audioFile: AVAudioFile?
     private var writeError: Error?
 
@@ -26,7 +26,7 @@ final class SystemAudioCapture: NSObject, SCStreamOutput, SCStreamDelegate {
         )
         guard let display = content.displays.first else {
             throw NSError(
-                domain: "ChronicleSystemAudio",
+                domain: "MnemosSystemAudio",
                 code: 1,
                 userInfo: [NSLocalizedDescriptionKey: "no display available for system audio capture"]
             )
@@ -62,7 +62,7 @@ final class SystemAudioCapture: NSObject, SCStreamOutput, SCStreamDelegate {
         }
         guard FileManager.default.fileExists(atPath: destination.path) else {
             throw NSError(
-                domain: "ChronicleSystemAudio",
+                domain: "MnemosSystemAudio",
                 code: 2,
                 userInfo: [NSLocalizedDescriptionKey: "system audio stream produced no samples"]
             )

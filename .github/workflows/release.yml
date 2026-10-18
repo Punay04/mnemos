@@ -45,13 +45,13 @@ jobs:
         env:
           CSC_IDENTITY_AUTO_DISCOVERY: "false"
       - run: npm run verify:package:mac
-      - run: shasum -a 256 release/Chronicle-universal.dmg > release/Chronicle-universal.dmg.sha256
+      - run: shasum -a 256 release/Mnemos-universal.dmg > release/Mnemos-universal.dmg.sha256
       - uses: actions/upload-artifact@v4
         with:
           name: macos-release
           path: |
-            release/Chronicle-universal.dmg
-            release/Chronicle-universal.dmg.sha256
+            release/Mnemos-universal.dmg
+            release/Mnemos-universal.dmg.sha256
 
   linux:
     needs: validate
@@ -65,13 +65,13 @@ jobs:
       - run: npm install --global npm@11.18.0
       - run: npm ci
       - run: npm run build:linux
-      - run: sha256sum release/Chronicle-x86_64.AppImage > release/Chronicle-x86_64.AppImage.sha256
+      - run: sha256sum release/Mnemos-x86_64.AppImage > release/Mnemos-x86_64.AppImage.sha256
       - uses: actions/upload-artifact@v4
         with:
           name: linux-release
           path: |
-            release/Chronicle-x86_64.AppImage
-            release/Chronicle-x86_64.AppImage.sha256
+            release/Mnemos-x86_64.AppImage
+            release/Mnemos-x86_64.AppImage.sha256
 
   publish:
     needs: [macos, linux]

@@ -153,7 +153,7 @@ export function BrainSection() {
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 p-8 text-center z-20">
               <Brain className="w-10 h-10 text-muted-foreground" />
               <p className="text-sm text-muted-foreground max-w-md">
-                No memories yet. Start recording and Chronicle will write episodes into the local graph
+                No memories yet. Start recording and Mnemos will write episodes into the local graph
                 automatically.
               </p>
             </div>

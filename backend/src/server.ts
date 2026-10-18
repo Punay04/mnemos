@@ -101,7 +101,7 @@ app.get("/health", (c) => {
     frame_status: engine.paused ? "paused" : engine.running ? "ok" : "disabled",
     audio_status: isAudioRecording() ? "ok" : engine.running ? "paused" : "disabled",
     ui_status: "ok",
-    message: engine.lastError ?? "chronicle capture engine",
+    message: engine.lastError ?? "mnemos capture engine",
     version: "0.1.0",
     uptime_seconds: Math.floor((Date.now() - startTime) / 1000),
     frames_captured: stats.framesCaptured,
@@ -834,7 +834,7 @@ export function startServer(): void {
   }
 
   serve({ fetch: app.fetch, hostname: API_HOST, port: API_PORT }, () => {
-    console.log(`[server] chronicle api http://${API_HOST}:${API_PORT}`);
+    console.log(`[server] mnemos api http://${API_HOST}:${API_PORT}`);
   });
 }
 
