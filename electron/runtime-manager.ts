@@ -8,6 +8,7 @@ import {
   readFileSync,
   writeFileSync,
 } from "node:fs";
+import net from "node:net";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -28,9 +29,8 @@ import {
 } from "./runtime-policy.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const HTTP_URL = `http://127.0.0.1:${manifest.hydradbHttpPort}`;
-const ADMIN_URL = `http://127.0.0.1:${manifest.hydradbAdminPort}`;
-const ADMIN_READY = `${ADMIN_URL}/readyz`;
+const REDIS_HOST = "127.0.0.1";
+const REDIS_PORT = manifest.falkordbPort;
 
 type StatusListener = (status: RuntimeStatus) => void;
 
@@ -38,25 +38,35 @@ function delay(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-async function reachable(url: string, timeoutMs = 1_500): Promise<boolean> {
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), timeoutMs);
-  try {
-    const response = await fetch(url, { signal: controller.signal });
-    return response.ok || response.status < 500;
-  } catch {
-    return false;
-  } finally {
-    clearTimeout(timer);
-  }
+function pingRedis(timeoutMs = 1_500): Promise<boolean> {
+  return new Promise((resolve) => {
+    const socket = net.connect({ host: REDIS_HOST, port: REDIS_PORT });
+    const timer = setTimeout(() => {
+      socket.destroy();
+      resolve(false);
+    }, timeoutMs);
+    const finish = (ok: boolean) => {
+      clearTimeout(timer);
+      socket.destroy();
+      resolve(ok);
+    };
+    socket.once("error", () => finish(false));
+    socket.once("connect", () => {
+      socket.write("*1\r\n$4\r\nPING\r\n");
+    });
+    socket.on("data", (chunk: Buffer) => {
+      const text = chunk.toString();
+      if (text.includes("PONG") || text.includes("NOAUTH")) finish(true);
+    });
+  });
 }
 
-async function waitForHealth(url: string, attempts: number): Promise<void> {
+async function waitForMemory(attempts: number): Promise<void> {
   for (let attempt = 0; attempt < attempts; attempt += 1) {
-    if (await reachable(url)) return;
+    if (await pingRedis()) return;
     await delay(500);
   }
-  throw new Error(`health check timed out for ${url}`);
+  throw new Error(`health check timed out for redis://${REDIS_HOST}:${REDIS_PORT}`);
 }
 
 export class RuntimeManager {
@@ -88,15 +98,10 @@ export class RuntimeManager {
 
   private paths() {
     const root = path.join(app.getPath("userData"), "runtime");
-    const memory = path.join(root, "hydradb");
-    const bin = path.join(memory, "bin");
-    const wrappers = path.join(memory, "wrappers");
+    const memory = path.join(root, "falkordb");
     return {
       root,
       memory,
-      bin,
-      wrappers,
-      server: path.join(bin, "graph-node"),
       log: path.join(root, "runtime.log"),
       provider: path.join(root, "provider.json"),
     };
@@ -226,27 +231,31 @@ export class RuntimeManager {
     await this.start();
   }
 
-  private hydraBackendEnv(): Record<string, string> {
-    const token =
-      readManagedApiKey(path.join(os.homedir(), ".chronicle", "hydradb")) ||
-      "local-development-token-32-bytes";
-    return {
-      HYDRADB_HTTP_URL: HTTP_URL,
-      HYDRADB_ADMIN_URL: ADMIN_URL,
-      HYDRADB_AUTH_TOKEN: token,
+  private falkorBackendEnv(): Record<string, string> {
+    const env: Record<string, string> = {
+      FALKORDB_HOST: REDIS_HOST,
+      FALKORDB_PORT: String(REDIS_PORT),
+      FALKORDB_GRAPH: "chronicle",
     };
+    const stored = readManagedApiKey(
+      path.join(os.homedir(), ".chronicle", "falkordb")
+    );
+    const password =
+      process.env.FALKORDB_PASSWORD || (stored !== "local" ? stored : "");
+    if (password) env.FALKORDB_PASSWORD = password;
+    return env;
   }
 
   private async startInternal() {
     try {
       if (!app.isPackaged) {
         this.update("checking", "waiting for development services", 20);
-        await waitForHealth(ADMIN_READY, 90);
+        await waitForMemory(180);
         this.update("starting-backend", "connecting to capture backend", 75, {
           memoryReady: true,
         });
         await startBackend(
-          this.hydraBackendEnv(),
+          this.falkorBackendEnv(),
           (message) => this.writeLog(`backend: ${message}`),
         );
         this.update("ready", "local runtime ready", 100, {
@@ -267,12 +276,12 @@ export class RuntimeManager {
 
       const paths = this.paths();
       mkdirSync(paths.memory, { recursive: true });
-      this.update("checking", "checking HydraDB", 10);
+      this.update("checking", "checking FalkorDB", 10);
 
       const providerEnv = this.getProviderEnv();
-      if (!(await reachable(ADMIN_READY))) {
-        this.update("starting-memory", "starting HydraDB graph node", 55);
-        await this.ensureHydra();
+      if (!(await pingRedis())) {
+        this.update("starting-memory", "starting FalkorDB", 55);
+        await this.ensureFalkor();
         await this.waitForMemoryHealth();
       }
 
@@ -282,7 +291,7 @@ export class RuntimeManager {
       try {
         await startBackend(
           {
-            ...this.hydraBackendEnv(),
+            ...this.falkorBackendEnv(),
             CHRONICLE_NATIVE_DIR: path.join(process.resourcesPath, "backend-native"),
             CHRONICLE_AUTO_START: "0",
             ...providerEnv,
@@ -311,9 +320,9 @@ export class RuntimeManager {
     }
   }
 
-  private ensureHydra(): Promise<void> {
-    this.update("installing", "starting HydraDB graph-node", 28);
-    const script = path.join(__dirname, "..", "scripts", "hydradb-start.mjs");
+  private ensureFalkor(): Promise<void> {
+    this.update("installing", "starting FalkorDB", 28);
+    const script = path.join(__dirname, "..", "scripts", "falkordb-start.mjs");
 
     return new Promise((resolve, reject) => {
       const child = spawn("node", [script], {
@@ -323,14 +332,14 @@ export class RuntimeManager {
         shell: process.platform === "win32",
       });
       this.memoryProcess = child;
-      this.pipeLogs(child, "hydradb", (text) => {
+      this.pipeLogs(child, "falkordb", (text) => {
         this.memoryOutput = `${this.memoryOutput}\n${text}`.slice(-16_000);
       });
       child.once("error", (error) => {
         reject(
           this.runtimeError(
             "INSTALL_FAILED",
-            "Could not start the HydraDB graph-node.",
+            "Could not start FalkorDB.",
             true,
             error.message
           )
@@ -342,7 +351,7 @@ export class RuntimeManager {
           reject(
             this.runtimeError(
               "INSTALL_FAILED",
-              "HydraDB could not be started. Run npm run memory:bootstrap, then retry.",
+              "FalkorDB could not be started. Start Docker, then run npm run memory:bootstrap and retry.",
               true,
               this.memoryOutput
             )
@@ -367,12 +376,12 @@ export class RuntimeManager {
 
   private async waitForMemoryHealth() {
     for (let attempt = 0; attempt < 240; attempt += 1) {
-      if (await reachable(ADMIN_READY)) return;
+      if (await pingRedis()) return;
       await delay(500);
     }
     throw this.runtimeError(
       "HEALTH_TIMEOUT",
-      "HydraDB took too long to start.",
+      "FalkorDB took too long to start.",
       true,
       this.memoryOutput
     );

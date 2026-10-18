@@ -23,9 +23,9 @@ export function readManagedApiKey(memoryDir: string): string {
     "api_key",
     path.join("data", "api-key"),
     path.join("data", "api_key"),
-    path.join(".hydradb", "auth-token"),
-    path.join(".hydradb", "api-key"),
-    path.join(".hydradb", "api_key"),
+    path.join(".falkordb", "auth-token"),
+    path.join(".falkordb", "api-key"),
+    path.join(".falkordb", "api_key"),
   ]) {
     const candidate = path.join(memoryDir, relative);
     if (!existsSync(candidate)) continue;
