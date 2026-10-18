@@ -6,6 +6,10 @@
   "author": "Mnemos",
   "main": "dist-electron/main.js",
   "type": "module",
+  "engines": {
+    "node": ">=24",
+    "npm": ">=11"
+  },
   "scripts": {
     "dev": "node scripts/dev.mjs",
     "compile": "npm run backend:build && tsc && vite build",
