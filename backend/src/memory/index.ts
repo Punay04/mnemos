@@ -1,6 +1,6 @@
 import { getDb } from "../db/index.js";
 import { buildGraphFromNeighbors, rowToMemoryNode } from "./adapter.js";
-import { cypherLiteral, isHydraReachable, runCypher } from "./client.js";
+import { cypherLiteral, isFalkorReachable, runCypher } from "./client.js";
 import {
   ingestAudioChunk,
   ingestChatSession,
@@ -18,6 +18,13 @@ export function initMemory(): void {
 
 export function isMemoryInitialized(): boolean {
   return initialized;
+}
+
+function asCount(value: unknown, fallback: number): number {
+  if (typeof value === "number" && Number.isFinite(value)) return value;
+  if (typeof value === "bigint") return Number(value);
+  if (typeof value === "string" && /^-?\d+$/.test(value)) return Number(value);
+  return fallback;
 }
 
 function tokensFromQuery(query: string): string[] {
@@ -44,7 +51,7 @@ export async function retrieveContextForChat(
 ): Promise<{ snippets: string[]; nodeIds: string[] }> {
   initMemory();
 
-  if (!(await isHydraReachable())) {
+  if (!(await isFalkorReachable())) {
     return { snippets: [], nodeIds: [] };
   }
 
@@ -124,7 +131,7 @@ export async function retrieveContextForChat(
 
     return { snippets, nodeIds };
   } catch (err) {
-    console.warn("[hydradb] retrieveContextForChat failed:", err);
+    console.warn("[falkordb] retrieveContextForChat failed:", err);
     return { snippets: [], nodeIds: [] };
   }
 }
@@ -132,9 +139,9 @@ export async function retrieveContextForChat(
 export async function backfillMemory(): Promise<{ ingested: number }> {
   initMemory();
 
-  if (!(await isHydraReachable())) {
+  if (!(await isFalkorReachable())) {
     console.warn(
-      "[hydradb] graph node not reachable at startup — run `npm run memory:start`"
+      "[falkordb] not reachable at startup — run `npm run memory:start`"
     );
     return { ingested: 0 };
   }
@@ -208,7 +215,7 @@ export async function getUserProfile(): Promise<{
 }> {
   initMemory();
 
-  if (!(await isHydraReachable())) {
+  if (!(await isFalkorReachable())) {
     return { persona: [], aims: [] };
   }
 
@@ -225,7 +232,7 @@ export async function getUserProfile(): Promise<{
       .filter(Boolean);
     return { persona, aims: [] };
   } catch (err) {
-    console.warn("[hydradb] getUserProfile failed:", err);
+    console.warn("[falkordb] getUserProfile failed:", err);
     return { persona: [], aims: [] };
   }
 }
@@ -239,7 +246,7 @@ export async function listNodes(params: {
   initMemory();
   const limit = params.limit ?? 50;
 
-  if (!(await isHydraReachable())) {
+  if (!(await isFalkorReachable())) {
     return { data: [], total: 0 };
   }
 
@@ -268,19 +275,18 @@ export async function listNodes(params: {
       ${where ? `WHERE ${where}` : ""}
       RETURN count(e) AS total
     `);
-    const total =
-      typeof countRows[0]?.total === "number" ? countRows[0].total : data.length;
+    const total = asCount(countRows[0]?.total, data.length);
 
     return { data, total };
   } catch (err) {
-    console.warn("[hydradb] listNodes failed:", err);
+    console.warn("[falkordb] listNodes failed:", err);
     return { data: [], total: 0 };
   }
 }
 
 export async function getNode(id: string): Promise<MemoryNode | null> {
   initMemory();
-  if (!(await isHydraReachable())) return null;
+  if (!(await isFalkorReachable())) return null;
 
   try {
     const rows = await runCypher(`
@@ -299,7 +305,7 @@ export async function getNodeGraph(
   _hops = 2
 ): Promise<MemoryGraph | null> {
   initMemory();
-  if (!(await isHydraReachable())) return null;
+  if (!(await isFalkorReachable())) return null;
 
   try {
     const node = await getNode(id);
@@ -332,7 +338,7 @@ export async function getNodeGraph(
 export async function getMemoryStats(): Promise<MemoryStats> {
   initMemory();
 
-  if (!(await isHydraReachable())) {
+  if (!(await isFalkorReachable())) {
     return { nodes: 0, edges: 0, by_type: {} };
   }
 
@@ -350,14 +356,14 @@ export async function getMemoryStats(): Promise<MemoryStats> {
     let nodes = 0;
     for (const row of typeRows) {
       const type = typeof row.type === "string" ? row.type : "memory";
-      const total = typeof row.total === "number" ? row.total : 0;
+      const total = asCount(row.total, 0);
       by_type[type] = total;
       nodes += total;
     }
 
     return {
       nodes,
-      edges: typeof edgeRows[0]?.total === "number" ? edgeRows[0].total : 0,
+      edges: asCount(edgeRows[0]?.total, 0),
       by_type,
     };
   } catch {

@@ -61,15 +61,9 @@ export const GEMINI_LIVE_MODEL =
 export const GEMINI_LIVE_VOICE =
   process.env.GEMINI_LIVE_VOICE ?? "Aoede";
 
-/** HydraDB graph-node HTTP query API */
-export const HYDRADB_HTTP_URL =
-  process.env.HYDRADB_HTTP_URL ?? "http://127.0.0.1:8443";
-
-/** HydraDB admin/readiness endpoint */
-export const HYDRADB_ADMIN_URL =
-  process.env.HYDRADB_ADMIN_URL ?? "http://127.0.0.1:9090";
-
-export const HYDRADB_AUTH_TOKEN = process.env.HYDRADB_AUTH_TOKEN ?? "";
-export const HYDRADB_NAMESPACE = process.env.HYDRADB_NAMESPACE ?? "default";
-export const HYDRADB_GRAPH_ID = process.env.HYDRADB_GRAPH_ID ?? "default";
-export const HYDRADB_CELL_ID = process.env.HYDRADB_CELL_ID ?? "cell-0";
+/** Local FalkorDB (Redis protocol). Started with `npm run memory:start`. */
+export const FALKORDB_HOST = process.env.FALKORDB_HOST ?? "127.0.0.1";
+export const FALKORDB_PORT = Number(process.env.FALKORDB_PORT ?? 6379);
+export const FALKORDB_GRAPH = process.env.FALKORDB_GRAPH ?? "chronicle";
+export const FALKORDB_USERNAME = process.env.FALKORDB_USERNAME ?? "";
+export const FALKORDB_PASSWORD = process.env.FALKORDB_PASSWORD ?? "";

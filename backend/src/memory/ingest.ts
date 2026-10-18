@@ -49,7 +49,7 @@ async function upsertEpisode(params: {
 
     return params.id;
   } catch (err) {
-    console.warn("[hydradb] ingest failed:", err);
+    console.warn("[falkordb] ingest failed:", err);
     return null;
   }
 }
@@ -260,7 +260,7 @@ export async function ingestChatSession(params: {
 
     return params.sessionId;
   } catch (err) {
-    console.warn("[hydradb] session ingest failed:", err);
+    console.warn("[falkordb] session ingest failed:", err);
     return null;
   }
 }

@@ -1,38 +1,38 @@
-import { existsSync, readFileSync } from "fs";
-import os from "os";
-import path from "path";
+import { FalkorDB } from "falkordb";
 import {
-  HYDRADB_ADMIN_URL,
-  HYDRADB_AUTH_TOKEN,
-  HYDRADB_CELL_ID,
-  HYDRADB_GRAPH_ID,
-  HYDRADB_HTTP_URL,
-  HYDRADB_NAMESPACE,
+  FALKORDB_GRAPH,
+  FALKORDB_HOST,
+  FALKORDB_PASSWORD,
+  FALKORDB_PORT,
+  FALKORDB_USERNAME,
 } from "../config.js";
 
 export interface CypherRow {
   [key: string]: unknown;
 }
 
-function readTokenFromDataDir(): string | undefined {
-  const candidates = [
-    path.join(os.homedir(), ".chronicle", "hydradb", "auth-token"),
-    path.join(process.cwd(), ".hydradb", "auth-token"),
-  ];
-  for (const filePath of candidates) {
-    if (!existsSync(filePath)) continue;
-    const value = readFileSync(filePath, "utf8").trim();
-    if (value) return value;
-  }
-  return undefined;
-}
+type FalkorClient = Awaited<ReturnType<typeof FalkorDB.connect>>;
 
-export function getHydraAuthToken(): string {
-  return (
-    HYDRADB_AUTH_TOKEN ||
-    readTokenFromDataDir() ||
-    "local-development-token-32-bytes"
-  );
+let clientPromise: Promise<FalkorClient> | null = null;
+
+function connect(): Promise<FalkorClient> {
+  if (!clientPromise) {
+    clientPromise = FalkorDB.connect({
+      username: FALKORDB_USERNAME || undefined,
+      password: FALKORDB_PASSWORD || undefined,
+      socket: {
+        host: FALKORDB_HOST,
+        port: FALKORDB_PORT,
+        connectTimeout: 2_000,
+        // Fail the first attempt instead of retrying while the container is down.
+        reconnectStrategy: () => new Error("FalkorDB unreachable"),
+      } as NonNullable<Parameters<typeof FalkorDB.connect>[0]>["socket"],
+    }).catch((error: unknown) => {
+      clientPromise = null;
+      throw error;
+    });
+  }
+  return clientPromise;
 }
 
 export function cypherLiteral(value: string | number | boolean | null): string {
@@ -41,77 +41,53 @@ export function cypherLiteral(value: string | number | boolean | null): string {
   return `'${value.replace(/\\/g, "\\\\").replace(/'/g, "\\'")}'`;
 }
 
-function unwrapRows(payload: unknown): CypherRow[] {
-  if (!payload || typeof payload !== "object") return [];
-  const body = payload as Record<string, unknown>;
-  const candidates = [body.rows, body.data, body.results, body.result];
-  for (const candidate of candidates) {
-    if (Array.isArray(candidate)) {
-      return candidate.map((row) => {
-        if (row && typeof row === "object" && !Array.isArray(row)) {
-          return row as CypherRow;
-        }
-        return { value: row };
-      });
-    }
-  }
-  if (Array.isArray(payload)) {
-    return payload as CypherRow[];
-  }
-  return [body];
+function normalizeCell(value: unknown): unknown {
+  if (typeof value === "bigint") return Number(value);
+  return value;
 }
 
-export async function isHydraReachable(): Promise<boolean> {
+function rowsFromResult(result: unknown): CypherRow[] {
+  if (!result || typeof result !== "object") return [];
+  const data = (result as { data?: unknown }).data;
+  if (!Array.isArray(data)) return [];
+  return data.map((row) => {
+    if (!row || typeof row !== "object" || Array.isArray(row)) {
+      return { value: normalizeCell(row) };
+    }
+    const out: CypherRow = {};
+    for (const [key, value] of Object.entries(row as Record<string, unknown>)) {
+      out[key] = normalizeCell(value);
+    }
+    return out;
+  });
+}
+
+export async function isFalkorReachable(): Promise<boolean> {
   try {
-    const controller = new AbortController();
-    const timer = setTimeout(() => controller.abort(), 2_000);
-    const response = await fetch(`${HYDRADB_ADMIN_URL.replace(/\/$/, "")}/readyz`, {
-      method: "GET",
-      signal: controller.signal,
-    });
-    clearTimeout(timer);
-    return response.ok || response.status < 500;
+    const db = await connect();
+    await db.list();
+    return true;
   } catch {
+    await resetFalkorClient();
     return false;
   }
 }
 
 export async function runCypher(query: string): Promise<CypherRow[]> {
-  const url = `${HYDRADB_HTTP_URL.replace(/\/$/, "")}/v1/graphs/${encodeURIComponent(HYDRADB_GRAPH_ID)}/query`;
-  const response = await fetch(url, {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${getHydraAuthToken()}`,
-      "X-Graph-Namespace": HYDRADB_NAMESPACE,
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      cell_id: HYDRADB_CELL_ID,
-      query,
-    }),
-  });
-
-  const text = await response.text();
-  let payload: unknown = null;
-  if (text) {
-    try {
-      payload = JSON.parse(text) as unknown;
-    } catch {
-      payload = { raw: text };
-    }
-  }
-
-  if (!response.ok) {
-    const message =
-      typeof payload === "object" && payload && "error" in payload
-        ? String((payload as { error: unknown }).error)
-        : text || `HydraDB query failed (${response.status})`;
-    throw new Error(message);
-  }
-
-  return unwrapRows(payload);
+  const db = await connect();
+  const graph = db.selectGraph(FALKORDB_GRAPH);
+  const result = await graph.query(query);
+  return rowsFromResult(result);
 }
 
-export function resetHydraClient(): void {
-  // HTTP client is stateless.
+export async function resetFalkorClient(): Promise<void> {
+  const pending = clientPromise;
+  clientPromise = null;
+  if (!pending) return;
+  try {
+    const db = await pending;
+    await db.close();
+  } catch {
+    // Connection was already dead.
+  }
 }
