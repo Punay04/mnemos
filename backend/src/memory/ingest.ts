@@ -101,6 +101,28 @@ export function factKey(text: string): string {
   return words.slice(0, 3).join(" ") || text.trim().slice(0, 48).toLowerCase();
 }
 
+const QUESTION_OPENERS = [
+  "what", "where", "when", "who", "whom", "whose", "why", "how", "which",
+  "do", "does", "did", "is", "are", "was", "were", "can", "could", "will",
+  "would", "should", "tell me", "remind me", "show me",
+];
+
+/**
+ * A question is not a claim. Storing one as a Fact lets "Where do I live?"
+ * key on the same attribute as the answer and supersede it, so the question
+ * becomes the current fact and the real answer gets retired.
+ */
+export function isClaim(text: string): boolean {
+  const trimmed = text.trim();
+  if (!trimmed) return false;
+  if (trimmed.endsWith("?")) return false;
+
+  const lowered = trimmed.toLowerCase();
+  return !QUESTION_OPENERS.some(
+    (opener) => lowered === opener || lowered.startsWith(`${opener} `)
+  );
+}
+
 async function upsertFact(params: {
   id: string;
   text: string;
@@ -295,7 +317,7 @@ export async function ingestChatSession(params: {
         MATCH (e:Episode {id: ${cypherLiteral(episodeId)}})
         MERGE (e)-[:IN_SESSION]->(s)
       `);
-      if (turn.role === "user") {
+      if (turn.role === "user" && isClaim(text)) {
         await upsertFact({
           id: `fact_${episodeId}`,
           text,

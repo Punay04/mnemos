@@ -492,6 +492,7 @@ app.post("/chat", async (c) => {
     const body = await c.req.json<{
       messages: ChatTurn[];
       context_query?: string;
+      session_id?: string;
     }>();
 
     if (!Array.isArray(body.messages) || body.messages.length === 0) {
@@ -538,7 +539,26 @@ app.post("/chat", async (c) => {
           }
         : undefined
     );
-    return c.json({ content, model: GEMINI_MODEL, provider: "gemini" });
+    // Persist the exchange so what the user tells the app becomes memory.
+    // Without this the graph only ever grows from capture and the explicit
+    // /memory/sessions endpoint, and anything said in chat is forgotten.
+    const sessionId = body.session_id?.trim() || `chat_${Date.now()}`;
+    void ingestChatSession({
+      sessionId,
+      turns: [
+        ...(lastUserMessage ? [{ role: "user" as const, content: lastUserMessage }] : []),
+        { role: "assistant" as const, content },
+      ],
+    }).catch((err) => {
+      console.warn("[chat] session ingest failed:", err);
+    });
+
+    return c.json({
+      content,
+      model: GEMINI_MODEL,
+      provider: "gemini",
+      session_id: sessionId,
+    });
   } catch (err) {
     return c.json(
       { error: err instanceof Error ? err.message : "chat request failed" },
