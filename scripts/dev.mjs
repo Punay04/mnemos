@@ -35,7 +35,7 @@ function shutdown(exitCode = 0) {
   process.exit(exitCode);
 }
 
-run("hydradb", "node", [path.join(root, "scripts", "hydradb-start.mjs")]);
+run("falkordb", "node", [path.join(root, "scripts", "falkordb-start.mjs")]);
 run("backend", "npm", ["run", "backend:dev"], { fatal: true });
 
 const app = run("app", "npx", ["vite"], { fatal: true });

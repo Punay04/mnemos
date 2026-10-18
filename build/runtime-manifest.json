@@ -1,7 +1,6 @@
 {
-  "hydradbImage": "ghcr.io/hydra-db/hydradb:latest",
-  "hydradbHttpPort": 8443,
-  "hydradbBoltPort": 7687,
-  "hydradbAdminPort": 9090,
+  "falkordbImage": "falkordb/falkordb:latest",
+  "falkordbPort": 6379,
+  "falkordbBrowserPort": 3000,
   "backendPort": 3030
 }

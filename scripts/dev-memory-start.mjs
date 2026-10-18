@@ -3,7 +3,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
-const child = spawn("node", [path.join(root, "scripts", "hydradb-start.mjs")], {
+const child = spawn("node", [path.join(root, "scripts", "falkordb-start.mjs")], {
   stdio: "inherit",
   cwd: root,
   shell: process.platform === "win32",

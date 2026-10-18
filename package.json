@@ -24,10 +24,10 @@
     "backend:install": "npm install --prefix backend",
     "backend:dev": "npm run dev --prefix backend",
     "backend:build": "npm run build --prefix backend",
-    "memory:start": "node scripts/hydradb-start.mjs",
-    "memory:start:local": "node scripts/hydradb-start.mjs",
-    "memory:bootstrap": "node scripts/hydradb-bootstrap.mjs",
-    "memory:status": "curl -sf http://127.0.0.1:9090/readyz",
+    "memory:start": "node scripts/falkordb-start.mjs",
+    "memory:start:local": "node scripts/falkordb-start.mjs",
+    "memory:bootstrap": "node scripts/falkordb-bootstrap.mjs",
+    "memory:status": "node scripts/falkordb-start.mjs --status",
     "postinstall": "npm run backend:install"
   },
   "dependencies": {
@@ -98,7 +98,7 @@
       "build/runtime-manifest.json",
       "backend/dist/**/*",
       "backend/package.json",
-      "scripts/hydradb-start.mjs"
+      "scripts/falkordb-start.mjs"
     ],
     "extraResources": [
       {
