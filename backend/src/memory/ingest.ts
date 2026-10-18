@@ -54,13 +54,60 @@ async function upsertEpisode(params: {
   }
 }
 
+// Words that carry no identifying weight, so two claims about the same thing
+// still land on the same key when the phrasing around them differs.
+const KEY_STOPWORDS = new Set([
+  "a", "an", "the", "i", "im", "my", "me", "we", "our", "you", "your",
+  "is", "am", "are", "was", "were", "be", "been", "now", "currently",
+  "to", "of", "in", "on", "at", "for", "from", "with", "and", "or",
+  "have", "has", "had", "do", "does", "did", "this", "that", "it",
+  "new", "old", "back", "just", "got", "get",
+]);
+
+// Verbs/nouns that name the attribute a claim is about. The first one found
+// becomes the key, so "I live in Austin" and "I moved to Lisbon" both key on
+// "live" and supersede each other instead of coexisting as current facts.
+const ATTRIBUTE_SYNONYMS: Array<[string, string[]]> = [
+  ["live", ["live", "lives", "living", "reside", "resides", "based", "located", "city", "relocated", "moved", "moving"]],
+  ["work", ["work", "works", "working", "job", "employed", "employer", "company", "joined"]],
+  ["role", ["role", "title", "position"]],
+  ["name", ["name", "called"]],
+  ["email", ["email", "mail"]],
+  ["phone", ["phone", "number", "mobile"]],
+  ["team", ["team", "squad", "group"]],
+  ["project", ["project", "building", "build", "shipping"]],
+  ["stack", ["stack", "framework", "language", "database", "db"]],
+  ["timezone", ["timezone", "tz", "utc"]],
+];
+
+/**
+ * Collapse a claim to a stable attribute key.
+ *
+ * Supersession matches on this key, so it has to be the same for two claims
+ * about the same attribute even when the wording differs. Falls back to the
+ * first few meaningful words when no known attribute is present — narrower
+ * than a 48-char prefix, which almost never matched twice.
+ */
+export function factKey(text: string): string {
+  const words = text
+    .toLowerCase()
+    .split(/[^a-z0-9]+/)
+    .filter((word) => word.length > 0 && !KEY_STOPWORDS.has(word));
+
+  for (const [key, synonyms] of ATTRIBUTE_SYNONYMS) {
+    if (words.some((word) => synonyms.includes(word))) return key;
+  }
+
+  return words.slice(0, 3).join(" ") || text.trim().slice(0, 48).toLowerCase();
+}
+
 async function upsertFact(params: {
   id: string;
   text: string;
   episodeId: string;
   createdAt: string;
 }): Promise<void> {
-  const key = params.text.trim().slice(0, 48).toLowerCase();
+  const key = factKey(params.text);
 
   await runCypher(`
     MERGE (f:Fact {id: ${cypherLiteral(params.id)}})
